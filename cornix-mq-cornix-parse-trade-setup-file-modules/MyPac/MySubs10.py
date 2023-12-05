@@ -1,5 +1,3 @@
-import os
-
 def read_trade_config_file(path_to_file):
     data_hash = {
         'coinPair': "xxx/usdt",

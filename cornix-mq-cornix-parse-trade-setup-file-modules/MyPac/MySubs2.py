@@ -1,11 +1,11 @@
-import MySubs5.format_to_variable_number_of_decimal_places
+import MyPac.MySubs6
 
 def even_distribution(entries_or_targets, no_of_entries_or_targets_wanted, high, low, is_trade_a_long, no_decimal_places):
     str_arr = []
 
     # Handle a single entry
     if no_of_entries_or_targets_wanted == 1:
-        str_arr.append("1) {} - 100%\n".format(format_to_variable_number_of_decimal_places(high, no_decimal_places)))
+        str_arr.append("1) {} - 100%\n".format(MyPac.MySubs6.format_to_variable_number_of_decimal_places(high, no_decimal_places)))
         return str_arr
 
     # Calculate entry/target values based on high, low, and number of entries
@@ -61,7 +61,7 @@ def even_distribution(entries_or_targets, no_of_entries_or_targets_wanted, high,
     # Print out entries/targets and their percentage allocations
     for i, val in enumerate(entry_or_target_vals_arr):
         loc = i + 1
-        formatted_val = format_to_variable_number_of_decimal_places(val, no_decimal_places)
+        formatted_val = MyPac.MySubs6.format_to_variable_number_of_decimal_places(val, no_decimal_places)
         perc = percentage_arr[i]
         str_arr.append(f"{loc} {formatted_val} - {perc}%\n")
 

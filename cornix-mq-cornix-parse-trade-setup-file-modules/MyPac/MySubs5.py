@@ -1,9 +1,10 @@
 from typing import List, Tuple
 from itertools import combinations
 
-import MySubs2.even_distribution
-import MySubs3.risk_softening_multiplier
-import MySubs9.fixed_risk_dynamic_position_size
+import MyPac.MySubs3
+import MyPac.MySubs2
+import MyPac.MySubs6
+import MyPac.MySubs9
 
 def calc_risk_added_at_each_entry(str_arr_ents: List[str], no_of_entries: int, stop_loss: float, full_position_size: float, wanted_to_risk_amount: float) -> List[str]:
     total_risk_so_far = 0
@@ -17,7 +18,7 @@ def calc_risk_added_at_each_entry(str_arr_ents: List[str], no_of_entries: int, s
         entry_no = i + 1
         this_entry_position_size = full_position_size * percentage
         this_risked_percentage = abs(entry_price - stop_loss) / entry_price
-        this_risked_amount = this_entry_position_size * this_risked_percentage
+        this_risked_amount = this_entry_position_size * this_risked_percentage * 100
 
         total_risk_so_far += this_risked_amount
         amount_still_left_to_risk = wanted_to_risk_amount - total_risk_so_far
@@ -27,16 +28,10 @@ def calc_risk_added_at_each_entry(str_arr_ents: List[str], no_of_entries: int, s
 
     return ret_arr
 
-def format_to_variable_number_of_decimal_places(val_in: float, decimal_places: int) -> str:
-    temp = f"%.{decimal_places}f"
-    val_out = temp % val_in
-    return val_out
-
-
 def heavy_weighting_at_entry_or_stop_loss(entries_or_targets_str: str, no_of_entries: int, high: float, low: float,
                                           is_trade_a_long: int, weighting_factor: float, no_decimal_places: int) -> List[str]:
     # Assuming MySubs2::EvenDistribution is implemented elsewhere
-    str_arr = even_distribution(entries_or_targets_str, no_of_entries, high, low, is_trade_a_long, no_decimal_places)
+    str_arr = MyPac.MySubs2.even_distribution(entries_or_targets_str, no_of_entries, high, low, is_trade_a_long, no_decimal_places)
 
     percentages = [float(entry.split()[3].rstrip('%')) / 100 for entry in str_arr]
     arr_length_perc = len(percentages)
@@ -54,7 +49,7 @@ def heavy_weighting_at_entry_or_stop_loss(entries_or_targets_str: str, no_of_ent
 
     # Update str_arr with the new weighted percentages
     str_arr_new_percentages = [f"{entry.split()[0]} {entry.split()[1]} {entry.split()[2]} "
-                               f"{format_to_variable_number_of_decimal_places(percentages[i], 2)}%\n"
+                               f"{MyPac.MySubs6.format_to_variable_number_of_decimal_places(percentages[i], 2)}%\n"
                                for i, entry in enumerate(str_arr)]
 
     return str_arr_new_percentages
@@ -86,7 +81,7 @@ def create_cornix_free_text_advanced_template(pair: str, client_selected: str, l
                                                             is_trade_a_long, weighting_factor_targets, no_decimal_places)
     template.extend(["", "Take-Profit Targets:"] + str_arr_targets)
 
-    sl = format_to_variable_number_of_decimal_places(stop_loss, no_decimal_places)
+    sl = MyPac.MySubs6.format_to_variable_number_of_decimal_places(stop_loss, no_decimal_places)
     template.extend(["", f"Stop Targets:\n1) {sl} - 100%\n", ""])
 
     trailing_lines = [
@@ -97,7 +92,7 @@ def create_cornix_free_text_advanced_template(pair: str, client_selected: str, l
     ]
     template.extend(trailing_lines)
 
-    risk_soft_mult, risk_percentage_based_on_entry1, risk_percentage_based_on_avg_entry = risk_softening_multiplier(
+    risk_soft_mult, risk_percentage_based_on_entry1, risk_percentage_based_on_avg_entry = MyPac.MySubs3.risk_softening_multiplier(
         str_arr_entries, stop_loss)
 
     position_size_entry1 = wanted_to_risk_amount / risk_percentage_based_on_entry1
@@ -114,7 +109,7 @@ def create_cornix_free_text_advanced_template(pair: str, client_selected: str, l
     frdps_data_ent1 = []
     frdps_data_avg_ent = []
     if dynamic_entry_value != 0:
-        temp_arrays_concatenated_returned_from_sub = fixed_risk_dynamic_position_size(str_arr_entries, stop_loss,
+        temp_arrays_concatenated_returned_from_sub = MyPac.MySubs9.fixed_risk_dynamic_position_size(str_arr_entries, stop_loss,
                                                                                         position_size_entry1,
                                                                                         position_size_average_entry,
                                                                                         wanted_to_risk_amount,

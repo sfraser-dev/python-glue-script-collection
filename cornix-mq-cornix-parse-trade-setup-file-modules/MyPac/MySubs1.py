@@ -1,7 +1,7 @@
 import datetime
 
 def create_output_filename(script_name, pair, is_trade_a_long):
-    # Remove '.pl' from script name
+    # Remove '.py' from script name
     script_name = script_name[:-3]
 
     # Get current date and time
