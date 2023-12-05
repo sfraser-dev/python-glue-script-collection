@@ -1,30 +1,41 @@
 import os
 import subprocess
-import logging
+from pathlib import Path
 
-# Specify the top-level folder containing the videos to be converted
-vid_originals_folder = "F:\\VIDEO_FIX\\mpegToH264"
+# use forward slashes ('/') in the pathname
+vid_originals_folder = "C:/Users/toepo/local/git-weebucket/python-glue-script-collection"  
 
-# Check if the folder exists
-if not os.path.exists(vid_originals_folder):
-    logging.error(f"Error: folder '{vid_originals_folder}' doesn't exist. Please point to the folder containing the videos to be converted.")
-    exit(1)
+if os.path.isdir(vid_originals_folder):
+    print(f"Converting videos in folder '{vid_originals_folder}' and its sub-folders")
+else:
+    print(f"Error: Folder '{vid_originals_folder}' doesn't exist. Please point to the folder containing the videos to be converted.")
+    exit()
 
-# Find all MPG files in the specified folder and its subdirectories
-vid_files = []
-for root, _, files in os.walk(vid_originals_folder):
+content = []
+all_arr = []
+
+#  find the video files from the specified directory and its sub-directories
+for root, dirs, files in os.walk(vid_originals_folder):
     for file in files:
-        if file.endswith('.mpg'):
-            vid_files.append(os.path.join(root, file))
+        if file.lower().endswith(".mp4"):
+            content.append(os.path.join(root, file))
 
-logging.info(f"Found {len(vid_files)} MPG files to convert")
+for vid_name in content:
+    # get filename, directory, and extension of the found video
+    name, file_dir, ext = Path(vid_name).stem, Path(vid_name).parent, Path(vid_name).suffix
+    # convert forward slashes to backward slashes
+    file_dir = file_dir.as_posix().replace("/", "\\") 
+    # will add trailing slash if not already there
+    found_complete_name = os.path.join(file_dir,name+ext)    
+    new_complete_name = os.path.join(file_dir, name+"-new"+ext)
+    str_data = f"{found_complete_name}==={new_complete_name}"
+    # full paths of videos to be converted stored in a list
+    all_arr.append(str_data)
 
-# Convert each MPG file to MP4 using FFmpeg
-for vid_file in vid_files:
-    original_file_path = os.path.abspath(vid_file)
-    converted_file_path = original_file_path.replace('.mpg', '.mp4')
-    ffmpeg_command = ['ffmpeg', '-i', original_file_path, '-f', 'mp4', converted_file_path]
-    subprocess.call(ffmpeg_command)
-
-    logging.info(f"Converted {original_file_path} to {converted_file_path}")
-
+# read pathnames from the list and run FFmpeg to convert
+for item in all_arr:
+    splitter = item.split("===")
+    original_file_name_full_path, converted_file_name_full_path = splitter[0], splitter[1]
+    # print(original_file_name_full_path)
+    # print(converted_file_name_full_path)
+    subprocess.run(["ffmpeg", "-i", original_file_name_full_path, "-f", "mp4", "-crf", "38", converted_file_name_full_path])
