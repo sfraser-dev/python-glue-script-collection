@@ -1,6 +1,9 @@
 import os
-import pathlib
+import shutil
 import logging
+
+# Set up logging
+logging.basicConfig(filename='zimg_processing.log', level=logging.INFO)
 
 # Define the paths to the input and output directories
 input_dir = '.'
@@ -13,11 +16,7 @@ repeat_every_xth_frame = 3
 os.makedirs(output_dir, exist_ok=True)
 
 # Find all JPEG files in the input directory
-input_files = []
-for root, _, files in os.walk(input_dir):
-    for file in files:
-        if file.endswith('.jpg'):
-            input_files.append(os.path.join(root, file))
+input_files = [os.path.join(root, file) for root, _, files in os.walk(input_dir) for file in files if file.endswith('.jpg')]
 
 # Process each JPEG file
 file_count = 0
@@ -31,7 +30,7 @@ for input_file in input_files:
     output_filename = f"zimg{file_count:09d}.jpg"
 
     # Copy the file to the output directory
-    copy(input_file, os.path.join(output_dir, output_filename))
+    shutil.copy(input_file, os.path.join(output_dir, output_filename))
 
     # Log the file paths and copy status
     logging.info(f"{file_count}, {input_file}, {output_filename}")
@@ -45,7 +44,7 @@ for input_file in input_files:
         # Copy the previous file again
         file_count += 1
         output_filename = f"zimg{file_count:09d}.jpg"
-        copy(input_file, os.path.join(output_dir, output_filename))
+        shutil.copy(input_file, os.path.join(output_dir, output_filename))
 
         # Log the repeated file copy
         logging.info(f"{file_count}, {input_file}, {output_filename} - repeated/copied")
@@ -54,4 +53,3 @@ for input_file in input_files:
     # Increment the file count and modulo count
     file_count += 1
     mod_count += 1
-
