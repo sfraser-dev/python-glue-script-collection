@@ -1,6 +1,9 @@
 import os
-import pathlib
+import logging
 import subprocess
+
+# needs mediainfo CLI
+# choco install mediainfo-cli
 
 # Create a logger
 logger = logging.getLogger(__name__)

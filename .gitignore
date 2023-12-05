@@ -6,6 +6,7 @@
 
 .ipynb_checkpoints/
 *.7z
+*.mp4
 
 
 # Node artifact files
