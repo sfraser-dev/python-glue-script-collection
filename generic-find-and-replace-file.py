@@ -18,7 +18,7 @@ for xml_file in xml_files:
         xml_content = f.read()
 
     # Replace the specified text
-    processed_content = re.sub(r'Path="\.\/DorsaLista"', r'Path="\.\/Dorsalista"', xml_content)
+    processed_content = re.sub(r"oldy", r"newStuff", xml_content)
 
     # Write the processed content to a new file
     new_file_path = xml_file + '.new'
