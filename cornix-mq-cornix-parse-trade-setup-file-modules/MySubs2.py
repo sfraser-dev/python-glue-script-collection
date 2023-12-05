@@ -1,3 +1,5 @@
+import MySubs5.format_to_variable_number_of_decimal_places
+
 def even_distribution(entries_or_targets, no_of_entries_or_targets_wanted, high, low, is_trade_a_long, no_decimal_places):
     str_arr = []
 
@@ -61,7 +63,7 @@ def even_distribution(entries_or_targets, no_of_entries_or_targets_wanted, high,
         loc = i + 1
         formatted_val = format_to_variable_number_of_decimal_places(val, no_decimal_places)
         perc = percentage_arr[i]
-        str_arr.append(f"{loc) {formatted_val} - {perc}%\n")
+        str_arr.append(f"{loc} {formatted_val} - {perc}%\n")
 
     return str_arr
 

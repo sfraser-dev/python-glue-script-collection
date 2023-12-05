@@ -1,21 +1,97 @@
 import argparse
-import os
-import sys
 
-from MySubs1 import create_output_filename
-from MySubs5 import create_cornix_free_text_advanced_template
-from MySubs6 import get_cornix_client_name
-from MySubs10 import read_trade_config_file
-from MySubs11 import create_cornix_free_text_simple_template
-from MySubs12 import check_values_from_config_file
-from MySubs13 import get_config_hash
+# Import custom modules
+import MySubs1.create_output_filename
+import MySubs5.create_cornix_free_text_advanced_template
+import MySubs10.read_trade_config_file
+import MySubs11.create_cornix_free_text_simple_template
+import MySubs12.get_cornix_client_name
+import MySubs13.check_values_from_config_file
 
-# Parse command line arguments
-parser = argparse.ArgumentParser(description='Generate Cornix Free Text templates')
-parser.add_argument('--file', help='Path to trade config file', required=True)
-parser.add_argument('--ewf', help='Entries weighting factor', type=float)
-parser.add_argument('--twf', help='Targets weighting factor', type=float)
-parser.add_argument('--aoe', help='Override number of entries', type=int)
+
+def main():
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Generate Cornix templates')
+    parser.add_argument('file', help='Config file path')
+    parser.add_argument('--ewf', help='Entries weighting factor', default=0)
+    parser.add_argument('--twf', help='Targets weighting factor', default=0)
+    parser.add_argument('--aoe', help='Amount of entries (override config file number of entries)', default=0)
+    parser.add_argument('--nota', help='Number of targets (override config file number of targets)', default=0)
+    parser.add_argument('--dev', help='Dynamic entry value for dynamic risk fixed position size', default=0)
+
+    args = parser.parse_args()
+
+    # Read trade config file
+    config_hash = read_trade_config_file(args.file)
+
+    # Override number of entries/targets if provided on command line
+    if args.aoe:
+        config_hash['numberOfEntries'] = args.aoe
+    if args.nota:
+        config_hash['numberOfTargets'] = args.nota
+
+    # Check if entries and targets make sense and determine trade type
+    trade_type = check_values_from_config_file(
+        config_hash['numberOfEntries'],
+        config_hash['numberOfTargets'],
+        config_hash['highEntry'],
+        config_hash['lowEntry'],
+        config_hash['highTarget'],
+        config_hash['lowTarget'],
+        config_hash['stopLoss'],
+        config_hash['leverage'],
+        config_hash['noDecimalPlacesForEntriesTargetsAndSLs'],
+        config_hash['wantedToRiskAmount']
+    )
+
+    # Generate Cornix templates
+    cornix_template_simple = create_cornix_free_text_simple_template(
+        config_hash['coinPair'],
+        config_hash['leverage'],
+        config_hash['highEntry'],
+        config_hash['lowEntry'],
+        config_hash['highTarget'],
+        config_hash['lowTarget'],
+        config_hash['stopLoss'],
+        config_hash['noDecimalPlacesForEntriesTargetsAndSLs'],
+        config_hash['numberOfEntries'],
+        config_hash['numberOfTargets'],
+        trade_type
+    )
+
+    cornix_template_advanced = create_cornix_free_text_advanced_template(
+        config_hash['coinPair'],
+        get_cornix_client_name(config_hash['client']),
+        config_hash['leverage'],
+        config_hash['numberOfEntries'],
+        config_hash['highEntry'],
+        config_hash['lowEntry'],
+        config_hash['numberOfTargets'],
+        config_hash['highTarget'],
+        config_hash['lowTarget'],
+        config_hash['stopLoss'],
+        config_hash['noDecimalPlacesForEntriesTargetsAndSLs'],
+        config_hash['wantedToRiskAmount'],
+        trade_type,
+        args.ewf,
+        args.twf,
+        args.dev
+    )
+
+    # Print templates to screen
+    print(cornix_template_simple)
+    print(cornix_template_advanced)
+
+    # Print template to file
+    output_filename = create_output_filename(args.file, config_hash['coinPair'], trade_type)
+    with open(output_filename, 'w') as fh:
+        print(cornix_template_simple, file=fh)
+        print(cornix_template_advanced, file=fh)
+
+
+if __name__ == '__main__':
+    main()
+
 parser.add_argument('--ont', help='Override number of targets', type=int)
 parser.add_argument('--dev', help='Dynamic entry value', type=float)
 
@@ -39,8 +115,8 @@ if args.ont:
 is_trade_a_long = check_values_from_config_file(**config_hash)
 
 # Generate Cornix Free Text templates
-cornix_template_simple = create_cornix_free_text_simple_template(**config_hash, is_trade_a_long)
-cornix_template_advanced = create_cornix_free_text_advanced_template(**config_hash, is_trade_a_long, args.ewf, args.twf, args.dev)
+cornix_template_simple = create_cornix_free_text_simple_template(config_hash["coinPair"], config_hash['leverage'], config_hash['highEntry'], config_hash['lowEntry'], config_hash['highTarget'], config_hash['lowTarget'], config_hash['stopLoss'], config_hash['noDecimalPlacesForEntriesTargetsAndSLs'], config_hash['numberOfEntries'], config_hash['numberOfTargets'], is_trade_a_long)
+cornix_template_advanced = create_cornix_free_text_advanced_template(config_hash['coinPair'], config_hash['client'], config_hash['leverage'], config_hash['numberOfEntries'], config_hash['highEntry'], config_hash['lowEntry'], config_hash['numberOfTargets'], config_hash['highTarget'], config_hash['lowTarget'], config_hash['stopLoss'], config_hash['noDecimalPlacesForEntriesTargetsAndSLs'], config_hash['wantedToRiskAmount'], is_trade_a_long, args.ewf, args.twf, args.dev)
 
 # Print templates to screen
 print(*cornix_template_simple, sep='\n')
