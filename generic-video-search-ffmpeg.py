@@ -5,6 +5,8 @@ from pathlib import Path
 # use forward slashes ('/') in the pathname
 vid_originals_folder = "C:/Users/toepo/local/git-weebucket/python-glue-script-collection"  
 
+# the_cur_dir = os.path.dirname(os.path.realpath(__file__))
+
 if os.path.isdir(vid_originals_folder):
     print(f"Converting videos in folder '{vid_originals_folder}' and its sub-folders")
 else:
