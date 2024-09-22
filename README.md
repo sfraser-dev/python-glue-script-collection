@@ -1,3 +1,3 @@
-# Python Scripts.  
+# Python Scripts
 
-Created by converting my perl glue script collection, transition from perl to python for scripting tasks.   
+A collection of useful (glue) Python scripts. Transitioning from Perl to Python.
