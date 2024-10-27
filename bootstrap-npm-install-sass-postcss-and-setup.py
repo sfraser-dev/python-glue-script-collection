@@ -4,7 +4,7 @@ import subprocess
 
 # Run in the top level of a web dev project
 # Installs Sass, PostCSS, and Bootstrap in node_modules
-#   Installed Bootstrap to have access to its source files for customization 
+#   Installed Bootstrap to have access to its source files for customization
 #   Installed Sass and PostCSS so we can run them as scripts from package.json
 #   PostCSS needs browserslist property set within package.json file
 # Adapts the package.json file so you can run Sass and PostCSS from the command line via npm
